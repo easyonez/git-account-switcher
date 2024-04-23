@@ -45,3 +45,7 @@ Their website: https://icons8.com/
 Contact me on discord: @easyonez
 
 
+### PS:
+Some of my commits are made by random accounts, only because i'm testing the app ! x)
+
+
