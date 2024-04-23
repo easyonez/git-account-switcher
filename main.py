@@ -12,7 +12,9 @@ translations = {
         "existing_label": "Or select:",
         "language_label": "Select language:",
         "button_text": "Set",
-        "success_message": "Git account switched successfully."
+        "remove_text": "Remove",
+        "success_message": "Git account switched successfully.",
+        "confirm_delete_message": "Are you sure you want to delete this account?"
     },
     "Italian": {
         "email_label": "Inserisci la tua email:",
@@ -20,7 +22,9 @@ translations = {
         "existing_label": "Oppure seleziona:",
         "language_label": "Seleziona lingua:",
         "button_text": "Imposta",
-        "success_message": "Account Git cambiato con successo."
+        "remove_text": "Rimuovi",
+        "success_message": "Account Git cambiato con successo.",
+        "confirm_delete_message": "Sei sicuro di voler eliminare questo account?"
     },
     "Spanish": {
         "email_label": "Ingrese su email:",
@@ -28,7 +32,9 @@ translations = {
         "existing_label": "O seleccione:",
         "language_label": "Seleccione idioma:",
         "button_text": "Establecer",
-        "success_message": "Cuenta Git cambiada exitosamente."
+        "remove_text": "Eliminar",
+        "success_message": "Cuenta Git cambiada exitosamente.",
+        "confirm_delete_message": "¿Seguro que quieres eliminar esta cuenta?"
     },
     "French": {
         "email_label": "Entrez votre e-mail:",
@@ -36,9 +42,12 @@ translations = {
         "existing_label": "Ou sélectionnez:",
         "language_label": "Sélectionnez la langue:",
         "button_text": "Définir",
-        "success_message": "Compte Git changé avec succès."
+        "remove_text": "Supprimer",
+        "success_message": "Compte Git changé avec succès.",
+        "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer ce compte ?"
     }
 }
+
 
 
 appdata_path = os.environ.get('APPDATA')
@@ -68,6 +77,7 @@ class GitAccountSwitcher(QMainWindow):
         self.language_dropdown = QComboBox(self)
         
         self.button_set = QPushButton("Set", self)
+        self.remove = QPushButton("Remove", self)
         
         self.init_ui()
         
@@ -91,7 +101,10 @@ class GitAccountSwitcher(QMainWindow):
         
         self.button_set.setGeometry(200, 250, 100, 30)
         self.button_set.setEnabled(False)
-        
+        self.remove.setGeometry(200, 300, 100, 30)
+        self.remove.setEnabled(False)
+        self.remove.clicked.connect(self.delete_account)
+
         self.language_dropdown.addItems(list(translations.keys()))
         self.language_dropdown.setCurrentText("English")
         self.language_dropdown.currentTextChanged.connect(self.change_language)
@@ -120,7 +133,24 @@ class GitAccountSwitcher(QMainWindow):
         self.name_label.setText(translations_dict["name_label"])
         self.existing_label.setText(translations_dict["existing_label"])
         self.button_set.setText(translations_dict["button_text"])
+        self.remove.setText(translations_dict["remove_text"])
         self.success_message = translations_dict["success_message"]
+
+    def delete_account(self):
+        selected_email = self.existing_dropdown.currentText()
+        if selected_email:
+            confirm_delete_text = translations[self.language_dropdown.currentText()]["confirm_delete_message"]
+            confirm_delete = QMessageBox.question(self, "Delete Account", confirm_delete_text,
+                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if confirm_delete == QMessageBox.Yes:
+                with open(git_accounts_file_path, "r+") as f:
+                    lines = f.readlines()
+                    f.seek(0)
+                    for line in lines:
+                        if line.strip() != selected_email:
+                            f.write(line)
+                    f.truncate()
+                self.existing_dropdown.removeItem(self.existing_dropdown.currentIndex())
         
     def set_git_config(self):
         email = self.email_entry.text()
@@ -166,6 +196,7 @@ class GitAccountSwitcher(QMainWindow):
     def on_existing_select(self, index):
         selected_email = self.existing_dropdown.currentText()
         if selected_email:
+            self.remove.setEnabled(True)
             self.name_entry.setText(selected_email.split(":")[1])
             self.email_entry.setText(selected_email.split(":")[0])
     
