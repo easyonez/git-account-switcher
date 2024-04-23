@@ -52,9 +52,9 @@ if not os.path.exists(git_accounts_file_path):
 class GitAccountSwitcher(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Git Account Switcher")
+        self.setWindowTitle("Git Account Switcher 1.0.0")
         self.setFixedSize(500, 400)
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("icon.ico"))
         
         self.label = QLabel(self)
         self.email_label = QLabel(self)
@@ -72,13 +72,13 @@ class GitAccountSwitcher(QMainWindow):
         self.init_ui()
         
     def init_ui(self):
-        self.label.setText("<b>Git Account Switcher</b>")
+        self.label.setText("<b>Git Account Switcher 1.0.0</b>")
         self.email_label.setText("")
         self.name_label.setText("")
         self.existing_label.setText("")
         self.icons_label.setText("Icons by Icons8")
 
-        self.label.setGeometry(175, 0, 200, 30)
+        self.label.setGeometry(150, 0, 250, 30)
         self.email_label.setGeometry(50, 60, 150, 30)
         self.name_label.setGeometry(50, 110, 150, 30)
         self.existing_label.setGeometry(50, 160, 150, 30)
