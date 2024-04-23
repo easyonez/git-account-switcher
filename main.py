@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QComboBox, QPushButton, QMessageBox
@@ -38,6 +39,15 @@ translations = {
         "success_message": "Compte Git changé avec succès."
     }
 }
+
+
+appdata_path = os.environ.get('APPDATA')
+git_switch_accounts_path = os.path.join(appdata_path, 'Git Account Switcher')
+git_accounts_file_path = os.path.join(git_switch_accounts_path, 'git_accounts.txt')
+os.makedirs(git_switch_accounts_path, exist_ok=True)
+if not os.path.exists(git_accounts_file_path):
+    with open(git_accounts_file_path, "w") as f:
+        pass
 
 class GitAccountSwitcher(QMainWindow):
     def __init__(self):
@@ -122,18 +132,22 @@ class GitAccountSwitcher(QMainWindow):
             return
         
         # Set up Git config
-        subprocess.run(["git", "config", "--global", "user.email", email])
-        subprocess.run(["git", "config", "--global", "user.name", name])
+        try:
+            subprocess.run(["git", "config", "--global", "user.email", email], check=True)
+            subprocess.run(["git", "config", "--global", "user.name", name], check=True)
+        except subprocess.CalledProcessError as e:
+            QMessageBox.critical(self, "Error", f"Failed to set Git config: {e.stderr.decode()}", QMessageBox.Ok)
+            return
         
         # Store the current configuration
         flag = False
-        with open("git_accounts.txt", "r") as f:
+        with open(git_accounts_file_path, "r") as f:
             for line in f:
                 if line.strip() == f"{email}:{name}":
                     flag = True
                     break
-        if flag == False:
-            with open("git_accounts.txt", "a") as f:
+        if not flag:
+            with open(git_accounts_file_path, "a") as f:
                 f.write(f"{email}:{name}\n")
             self.existing_dropdown.addItem(f"{email}:{name}")
             self.email_entry.clear()
@@ -143,7 +157,7 @@ class GitAccountSwitcher(QMainWindow):
         
     def load_existing_accounts(self):
         try:
-            with open("git_accounts.txt", "r") as f:
+            with open(git_accounts_file_path, "r") as f:
                 existing_accounts = [line.strip() for line in f.readlines() if line.strip()]
                 self.existing_dropdown.addItems(existing_accounts)
         except FileNotFoundError:
