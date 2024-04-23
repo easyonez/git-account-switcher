@@ -38,7 +38,7 @@ Git Account Switcher is a simple application built using PyQt5 that allows you t
 4. Click on the "Set" button to switch the Git account.
 
 
-###Icons by Icons8
+### Icons by Icons8
 Their website: https://icons8.com/
 
 ### Problems?
